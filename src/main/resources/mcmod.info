@@ -1,0 +1,13 @@
+[
+  {
+    "modid": "SignLockedChests",
+    "name": "Sign Locked Chests",
+    "version": "${modVersion}",
+    "mcversion": "1.7.10",
+    "description": "A simple mod to lock chests with signs.",
+    "url": "",
+    "credits": "",
+    "authorList": ["proton-c"],
+    "dependencies": []
+  }
+]
