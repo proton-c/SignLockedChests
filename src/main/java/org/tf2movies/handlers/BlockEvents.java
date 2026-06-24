@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntitySign;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -78,6 +79,11 @@ public class BlockEvents {
             && owner.equals(player.getGameProfile().getName());
     }
 
+    private static boolean isOp(EntityPlayer player) {
+        return player != null && MinecraftServer.getServer()
+            .getConfigurationManager().func_152596_g(player.getGameProfile());
+    }
+
     /**
      * Intercept the interaction *before* vanilla runs ItemSign.onItemUse / opens the
      * chest. Doing it here means the sign-editor GUI packet is never sent and we keep
@@ -95,10 +101,10 @@ public class BlockEvents {
         TileEntity clicked = event.world.getTileEntity(event.x, event.y, event.z);
         boolean isChest = clicked instanceof TileEntityChest;
 
-        // Block opening a locked chest for anyone but its owner.
+        // Block opening a locked chest for anyone but its owner or an op.
         if (isChest) {
             String owner = findLockOwner(event.world, event.x, event.y, event.z);
-            if (owner != null && !isOwner(owner, player)) {
+            if (owner != null && !isOwner(owner, player) && !isOp(player)) {
                 event.setCanceled(true);
                 player.addChatMessage(new ChatComponentText("This chest belongs to " + owner + "."));
                 return;
@@ -180,7 +186,7 @@ public class BlockEvents {
         if (owner == null) return; // unlocked
 
         EntityPlayer breaker = event.getPlayer();
-        if (isOwner(owner, breaker)) return;
+        if (isOwner(owner, breaker) || isOp(breaker)) return;
 
         event.setCanceled(true);
         if (breaker != null) {
